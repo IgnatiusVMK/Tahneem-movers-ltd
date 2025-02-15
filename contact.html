@@ -82,7 +82,7 @@
                                                     <li><a href="our_services#home_moving">Home Moving</a></li>
                                                     <li><a href="our_services#office_relocation">Office Relocation</a></li>
                                                     <li><a href="our_services#warehousing">Warehousing</a></li>
-                                                    <li><a href="our_services##packaging">Packaging</a></li>
+                                                    <li><a href="our_services#packaging">Packaging</a></li>
                                                 </ul>
                                             </li>
                                             <li><a href="contact">Contact</a></li>
@@ -162,7 +162,7 @@
                             });
                         }
                     </script>
-                    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpfS1oRGreGSBU5HHjMmQ3o5NLw7VdJ6I&amp;callback=initMap">
+                    <script src="#">
                     </script>
                                                             
                 </div>
@@ -173,31 +173,62 @@
                         <h2 class="contact-title">Get in Touch</h2>
                     </div>
                     <div class="col-lg-8">
-                        <form action="process_form.php" class="form-contact contact_form" action="contact_process.php" method="post" id="estimate-form" novalidate="novalidate">
+                        <form action="process_form.php" class="form-contact contact_form" method="POST" id="estimate-form" novalidate="novalidate">
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <textarea class="form-control w-100" name="message" id="message" cols="30" rows="9" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Message'" placeholder=" Message"></textarea>
+                                        <textarea class="form-control w-100" name="message" id="message" cols="30" rows="9"
+                                            onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Message'"
+                                            placeholder="Message" required></textarea>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <input class="form-control valid" name="name" id="name" type="text" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your name'" placeholder="Enter your name">
+                                        <input class="form-control valid" name="name" id="name" type="text"
+                                            onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your name'"
+                                            placeholder="Enter your name" required>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <input class="form-control valid" name="email" id="email" type="email" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" placeholder="Email">
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <input class="form-control" name="service" id="subject" type="text" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Service Required'" placeholder="Enter Service">
+                                        <input class="form-control valid" name="email" id="email" type="email"
+                                            onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'"
+                                            placeholder="Email" required>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group mt-3">
-                                <button type="submit" class="button button-contactForm boxed-btn">Send</button>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" name="size_house_from"
+                                            
+                                            placeholder="The size of the house you're moving from" required>
+                                    </div>
+                                </div><!-- onfocus="this.placeholder = ''" onblur="this.placeholder = 'The size of the house you\'re moving from'" -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" name="from_to_where"
+                                            placeholder="Where are you moving from, and where to?" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" name="floor_to_floor"
+                                            placeholder="From which floor to which floor?" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" name="moving_schedule"
+                                            placeholder="When do you want to move?" required>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group mt-3">
+                                        <button type="submit" class="button button-contactForm boxed-btn">Request Estimate</button>
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>

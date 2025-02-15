@@ -83,7 +83,7 @@
                                                     <li><a href="our_services#home_moving">Home Moving</a></li>
                                                     <li><a href="our_services#office_relocation">Office Relocation</a></li>
                                                     <li><a href="our_services#warehousing">Warehousing</a></li>
-                                                    <li><a href="our_services##packaging">Packaging</a></li>
+                                                    <li><a href="our_services#packaging">Packaging</a></li>
                                                 </ul>
                                             </li>
                                             <li><a href="contact">Contact</a></li>
@@ -277,6 +277,9 @@
                 <div class="col-xl-8 col-lg-8 col-md-7">
                     <div id="estimate-form" class="form">
                         <form action="process_form.php" method="post" role="form">
+                            <div class="Estimate_info">
+                                <h2 style="color: white;">Kindly let us know:</h2>
+                            </div>
                             <div class="row">
                                 <div class="col-xl-6">
                                     <div class="input_field">
@@ -288,19 +291,34 @@
                                         <input type="email" name="email" placeholder="Email" required>
                                     </div>
                                 </div>
+
                                 <div class="col-xl-6">
                                     <div class="input_field">
-                                        <input type="text" name="service" placeholder="Service" required>
+                                        <input type="text" name="size_house_from" placeholder="The size of the house you're moving from" required>
                                     </div>
                                 </div>
+
                                 <div class="col-xl-6">
                                     <div class="input_field">
-                                        <input type="text" name="city_of_service" placeholder="City of Service" required>
+                                        <input type="text" name="from_to_where" placeholder="Where are you moving from, and where to?" required>
                                     </div>
                                 </div>
+
+                                <div class="col-xl-6">
+                                    <div class="input_field">
+                                        <input type="text" name="floor_to_floor" placeholder="From which floor to which floor?" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-xl-6">
+                                    <div class="input_field">
+                                        <input type="text" name="moving_schedule" placeholder="When do you want to move?" required>
+                                    </div>
+                                </div>
+
                                 <div class="col-xl-12">
                                     <div class="input_field">
-                                        <textarea name="message" placeholder="Message" required></textarea>
+                                        <textarea name="message" placeholder="Extra Details (Optional:)"></textarea>
                                     </div>
                                 </div>
                                 <div class="col-xl-12">
