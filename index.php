@@ -1,3 +1,27 @@
+<?php
+session_start();
+if (isset($_SESSION['error_message'])) {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var errorDiv = document.createElement('div');
+            errorDiv.style.color = 'red';
+            errorDiv.style.padding = '10px';
+            errorDiv.style.margin = '10px 0';
+            errorDiv.style.border = '1px solid red';
+            errorDiv.style.background = '#ffdddd';
+            errorDiv.textContent = '" . $_SESSION['error_message'] . "';
+            
+            var form = document.querySelector('#estimate-form');
+            if (form) {
+                form.insertAdjacentElement('beforebegin', errorDiv);
+            }
+        });
+    </script>";
+    unset($_SESSION['error_message']); // Clear message after displaying
+}
+?>
+
+
 <!doctype html>
 <html class="no-js" lang="zxx">
 
@@ -375,7 +399,7 @@
                 </div>
                 <div class="col-xl-8 col-lg-8 col-md-7">
                     <div id="estimate-form" class="form">
-                        <form action="process_form.php" method="post" role="form">
+                        <form action="process_form.php" method="POST" role="form">
                             <div class="Estimate_info">
                                 <h2 style="color: white;">Kindly let us know:</h2>
                             </div>
