@@ -1,4 +1,8 @@
 <?php
+ob_start(); // Start output buffering
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 use Dotenv\Dotenv;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -6,11 +10,11 @@ use PHPMailer\PHPMailer\Exception;
 
 require __DIR__ . '/vendor/autoload.php';
 
-session_start();
+// Error Reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Load .env
+// Load Environment Variables
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
@@ -31,7 +35,7 @@ try {
     die("Database error. Please try again later.");
 }
 
-// Ensure the request method is POST
+// Ensure Request Method is POST
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     die('Invalid request method.');
 }
@@ -45,20 +49,19 @@ $stmt->execute([$user_ip]);
 $block = $stmt->fetch();
 
 if ($block && strtotime($block['blocked_until']) > time()) {
-    session_start();
     $_SESSION['error_message'] = "Too many requests. You are blocked until " . htmlspecialchars($block['blocked_until']);
     header("Location: index.php#estimate-form", true, 302);
     exit;
 }
 
-// Clean old email request records older than 1 hour
-$pdo->exec(statement: "DELETE FROM email_requests WHERE timestamp < NOW() - INTERVAL 1 HOUR");
+// Clean Old Records
+$pdo->exec("DELETE FROM email_requests WHERE timestamp < NOW() - INTERVAL 1 HOUR");
 
-// Log this request into the database
+// Log Request
 $stmt = $pdo->prepare("INSERT INTO email_requests (ip_address, timestamp) VALUES (?, NOW())");
 $stmt->execute([$user_ip]);
 
-// Check if the IP has sent more than 2 emails in the last 15 minutes
+// Check Request Limit
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM email_requests WHERE ip_address = ? AND timestamp > NOW() - INTERVAL 15 MINUTE");
 $stmt->execute([$user_ip]);
 $email_count = $stmt->fetchColumn();
@@ -69,14 +72,12 @@ if ($email_count > 2) {
                            ON DUPLICATE KEY UPDATE blocked_until = VALUES(blocked_until)");
     $stmt->execute([$user_ip, $blocked_until]);
 
-    // Store error message in session and redirect
-    session_start();
     $_SESSION['error_message'] = "Too many requests. You are blocked until " . htmlspecialchars($blocked_until);
     header("Location: index.php#estimate-form", true, 302);
     exit;
 }
 
-// Validate inputs
+// Validate Inputs
 $name = htmlspecialchars(trim(filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS)));
 $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
 $size_house_from = htmlspecialchars(trim($_POST['size_house_from'] ?? ''));
@@ -89,11 +90,10 @@ if (!$email) {
     die("Invalid email format.");
 }
 
-// Initialize PHPMailer
+// Send Email with PHPMailer
 $mail = new PHPMailer(true);
 
 try {
-    // SMTP Configuration
     $mail->isSMTP();
     $mail->Host = $_ENV['SMTP_HOST'];
     $mail->SMTPAuth = true;
@@ -102,13 +102,11 @@ try {
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = $_ENV['SMTP_PORT'];
 
-    // Email Content
     $mail->setFrom($_ENV['SMTP_USER'], 'Quotation Inquiry');
     $mail->addAddress('ignatiusvmk@gmail.com');
     $mail->isHTML(true);
     $mail->Subject = 'Services Estimate Request';
 
-    // Email Body
     $mail->Body = "<html><head><style>
         body { font-family: Arial, sans-serif; background-color: #f8f9fa; }
         .email-container { max-width: 600px; background: #ffffff; padding: 20px; border: 1px solid #ddd; }
@@ -134,7 +132,6 @@ try {
         </div>
     </body></html>";
 
-    // Send Email
     if ($mail->send()) {
         header("Location: index.php#estimate-form", true, 302);
         exit;
@@ -145,4 +142,6 @@ try {
     error_log("Email error: " . $mail->ErrorInfo);
     die("Message could not be sent. Please try again later.");
 }
+
+ob_end_flush(); // Send output buffer
 ?>

@@ -399,7 +399,7 @@ if (isset($_SESSION['error_message'])) {
                 </div>
                 <div class="col-xl-8 col-lg-8 col-md-7">
                     <div id="estimate-form" class="form">
-                        <form action="process_form.php" method="POST" role="form">
+                        <form action="/process_form" method="POST" role="form">
                             <div class="Estimate_info">
                                 <h2 style="color: white;">Kindly let us know:</h2>
                             </div>

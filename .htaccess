@@ -1,5 +1,7 @@
 RewriteEngine On
 
+RewriteRule ^process_form$ process_form.php [L]
+
 # Redirect /index or /index.html to the root URL
 RewriteCond %{THE_REQUEST} /index(\.html)? [NC]
 RewriteRule ^(.*)index(\.html)?$ /$1 [R=301,L]
