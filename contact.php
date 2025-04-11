@@ -1,3 +1,32 @@
+<?php
+session_start();
+
+require __DIR__ . '/vendor/autoload.php';
+
+// Load Environment Variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+if (isset($_SESSION['error_message'])) {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var errorDiv = document.createElement('div');
+            errorDiv.style.color = 'red';
+            errorDiv.style.padding = '10px';
+            errorDiv.style.margin = '10px 0';
+            errorDiv.style.border = '1px solid red';
+            errorDiv.style.background = '#ffdddd';
+            errorDiv.textContent = '" . $_SESSION['error_message'] . "';
+            
+            var form = document.querySelector('#estimate-form');
+            if (form) {
+                form.insertAdjacentElement('beforebegin', errorDiv);
+            }
+        });
+    </script>";
+    unset($_SESSION['error_message']); // Clear message after displaying
+}
+?>
 <!doctype html>
 <html class="no-js" lang="zxx">
 

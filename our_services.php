@@ -1,3 +1,32 @@
+<?php
+session_start();
+
+require __DIR__ . '/vendor/autoload.php';
+
+// Load Environment Variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+if (isset($_SESSION['error_message'])) {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var errorDiv = document.createElement('div');
+            errorDiv.style.color = 'red';
+            errorDiv.style.padding = '10px';
+            errorDiv.style.margin = '10px 0';
+            errorDiv.style.border = '1px solid red';
+            errorDiv.style.background = '#ffdddd';
+            errorDiv.textContent = '" . $_SESSION['error_message'] . "';
+            
+            var form = document.querySelector('#estimate-form');
+            if (form) {
+                form.insertAdjacentElement('beforebegin', errorDiv);
+            }
+        });
+    </script>";
+    unset($_SESSION['error_message']); // Clear message after displaying
+}
+?>
 <!doctype html>
 <html class="no-js" lang="zxx">
 
@@ -27,6 +56,8 @@
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css">
 
     <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body></body>
@@ -478,7 +509,7 @@
                 </div>
                 <div class="col-xl-8 col-lg-8 col-md-7">
                     <div id="estimate-form" class="form">
-                        <form action="/process_form" method="post" role="form">
+                        <form action="/process_form" method="POST" role="form">
                             <div class="Estimate_info">
                                 <h2 style="color: white;">Kindly let us know:</h2>
                             </div>
@@ -520,9 +551,24 @@
 
                                 <div class="col-xl-12">
                                     <div class="input_field">
-                                        <textarea name="message" placeholder="Extra Details (Optional:)"></textarea>
+                                        <textarea name="message" placeholder="Extra Details"></textarea>
                                     </div>
                                 </div>
+
+                                <!-- Honeypot -->
+                                <input type="text" name="website" style="display:none;" tabindex="-1" autocomplete="off">
+
+                                <!-- JavaScript-detect -->
+                                <input type="hidden" name="js_enabled" id="js_enabled" value="">
+                                <script>document.getElementById("js_enabled").value = "yes";</script>
+
+                                <!-- Time Token -->
+                                <input type="hidden" name="form_token" value="<?= time(); ?>">
+
+
+                                <!-- reCAPTCHA -->
+                                <div class="g-recaptcha" data-sitekey="<?= $_ENV['RECAPTCHA_SITE'] ?>"></div>
+
                                 <div class="col-xl-12">
                                     <div class="input_field">
                                         <button class="boxed-btn3-line" type="submit">Send Estimate</button>

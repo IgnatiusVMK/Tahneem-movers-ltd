@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+require __DIR__ . '/vendor/autoload.php';
+
+// Load Environment Variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 if (isset($_SESSION['error_message'])) {
     echo "<script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -20,8 +27,6 @@ if (isset($_SESSION['error_message'])) {
     unset($_SESSION['error_message']); // Clear message after displaying
 }
 ?>
-
-
 <!doctype html>
 <html class="no-js" lang="zxx">
 
@@ -51,6 +56,8 @@ if (isset($_SESSION['error_message'])) {
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css">
 
     <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -441,9 +448,24 @@ if (isset($_SESSION['error_message'])) {
 
                                 <div class="col-xl-12">
                                     <div class="input_field">
-                                        <textarea name="message" placeholder="Extra Details (Optional:)"></textarea>
+                                        <textarea name="message" placeholder="Extra Details"></textarea>
                                     </div>
                                 </div>
+
+                                <!-- Honeypot -->
+                                <input type="text" name="website" style="display:none;" tabindex="-1" autocomplete="off">
+
+                                <!-- JavaScript-detect -->
+                                <input type="hidden" name="js_enabled" id="js_enabled" value="">
+                                <script>document.getElementById("js_enabled").value = "yes";</script>
+
+                                <!-- Time Token -->
+                                <input type="hidden" name="form_token" value="<?= time(); ?>">
+
+
+                                <!-- reCAPTCHA -->
+                                <div class="g-recaptcha" data-sitekey="<?= $_ENV['RECAPTCHA_SITE'] ?>"></div>
+
                                 <div class="col-xl-12">
                                     <div class="input_field">
                                         <button class="boxed-btn3-line" type="submit">Send Estimate</button>
@@ -570,6 +592,7 @@ if (isset($_SESSION['error_message'])) {
     </div>
 
     <!-- JS here -->
+
     <script src="js/vendor/modernizr-3.5.0.min.js"></script>
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/popper.min.js"></script>
@@ -598,7 +621,7 @@ if (isset($_SESSION['error_message'])) {
     <script src="js/mail-script.js"></script>
 
 
-    <script src="js/main.js"></script>    
+    <script src="js/main.js"></script>
 </body>
 
 </html>

@@ -40,8 +40,38 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     die('Invalid request method.');
 }
 
+// Honeypot check
+if (!empty($_POST['website'])) {
+    die("Spam detected (honeypot).");
+}
+
+// Verify Google reCAPTCHA
+$recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
 // Get User IP
 $user_ip = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
+
+$recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+$recaptcha_secret = $_ENV['RECAPTCHA_SECRET'];
+
+$verify_response = file_get_contents($recaptcha_url . '?secret=' . urlencode($recaptcha_secret) . '&response=' . urlencode($recaptcha_response) . '&remoteip=' . urlencode($user_ip));
+$response_data = json_decode($verify_response);
+
+if (!$response_data->success) {
+    $_SESSION['error_message'] = "reCAPTCHA verification failed. Please try again.";
+    header("Location: index.php#estimate-form", true, 302);
+    exit;
+}
+
+// JavaScript-enabled check
+if (empty($_POST['js_enabled']) || $_POST['js_enabled'] !== 'yes') {
+    die("Spam detected (no JS).");
+}
+
+// Time-based submission check (form filled too fast)
+$form_token_time = intval($_POST['form_token'] ?? 0);
+if (time() - $form_token_time < 3) { // less than 3 seconds is suspicious
+    die("Spam detected (submitted too quickly).");
+}
 
 // Check if the user is already blocked
 $stmt = $pdo->prepare("SELECT blocked_until FROM blocked_users WHERE ip_address = ? LIMIT 1");

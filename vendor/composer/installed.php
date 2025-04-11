@@ -3,7 +3,7 @@
         'name' => 'tahneemm/tahneem-movers',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '1bae9e705cd5221c0186c519af13a1a292593a9c',
+        'reference' => 'd42678fe11fbaba8551d0af63f7dcb2bd22c9d75',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -67,7 +67,7 @@
         'tahneemm/tahneem-movers' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '1bae9e705cd5221c0186c519af13a1a292593a9c',
+            'reference' => 'd42678fe11fbaba8551d0af63f7dcb2bd22c9d75',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
