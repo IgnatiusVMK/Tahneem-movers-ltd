@@ -1,31 +1,5 @@
 <?php
-session_start();
-
-require __DIR__ . '/vendor/autoload.php';
-
-// Load Environment Variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
-if (isset($_SESSION['error_message'])) {
-    echo "<script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var errorDiv = document.createElement('div');
-            errorDiv.style.color = 'red';
-            errorDiv.style.padding = '10px';
-            errorDiv.style.margin = '10px 0';
-            errorDiv.style.border = '1px solid red';
-            errorDiv.style.background = '#ffdddd';
-            errorDiv.textContent = '" . $_SESSION['error_message'] . "';
-            
-            var form = document.querySelector('#estimate-form');
-            if (form) {
-                form.insertAdjacentElement('beforebegin', errorDiv);
-            }
-        });
-    </script>";
-    unset($_SESSION['error_message']); // Clear message after displaying
-}
+require __DIR__ . '/config/bootstrap.php';
 ?>
 <!doctype html>
 <html class="no-js" lang="zxx">
@@ -33,9 +7,10 @@ if (isset($_SESSION['error_message'])) {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Tahneem Movers</title>
-    <meta name="description" content="Tahneem Movers & Logistics">
-    <meta name="keywords" content="Tahneem Movers & Logistics, Moving Services, Office Relocation, Moving, Movers, Relocation">
+    <title>Tahneem Movers & Logistics | Professional Moving Services in Nairobi, Kenya</title>
+    <meta name="description" content="Tahneem Movers & Logistics | Professional Moving Services in Nairobi, Kenya">
+    <meta name="keywords" content="Tahneem Movers & Logistics, Moving Services, Office Relocation, Moving, Movers, Relocation, Professional Moving Services in Nairobi, Kenya">
+    <meta name="description" content="Tahneem Movers offers reliable home & office relocation, warehousing and packaging services across Kenya. Get a free quote today! +254 796 112 444">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="manifest" href="site.webmanifest">
@@ -79,12 +54,12 @@ if (isset($_SESSION['error_message'])) {
                                 <div class="short_contact_list">
                                     <ul>
                                         <li><a href="mailto:info@tahneemmovers.com"> <i class="fa fa-envelope"></i> info@tahneemmovers.com</a></li>
-                                        <li><a href="#"> <i class="fa fa-phone"></i> +254 796 112 444 || +254 724 897595</a></li>
+                                        <li><a href="#"> <i class="fa fa-phone"></i> +254 796 112 444</a></li>
                                     </ul>
                                 </div>
 
                                 <div class="book_btn d-none d-lg-block">
-                                    <a class="boxed-btn3-line" href="#">Get Quotation</a>
+                                    <a class="boxed-btn3-line" href="#estimate-form">Get Free Quotation</a>
                                 </div>
                             </div>
                         </div>
@@ -270,7 +245,7 @@ if (isset($_SESSION['error_message'])) {
                 </div>
                 <div class="col-xl-5 col-md-6">
                     <div class="call_add_action">
-                        <a href="#" class="boxed-btn3">+254 796 112 444 || +254 724 897595</a>
+                        <a href="#" class="boxed-btn3">+254 796 112 444</a>
                     </div>
                 </div>
             </div>
@@ -401,12 +376,12 @@ if (isset($_SESSION['error_message'])) {
                         <h3>Feel Free To Request A Free Quote</h3>
                         <p>We will coordinate every aspect of your move and keep you posted each step of the way.
                         </p>
-                        <a href="#" class="boxed-btn3">+254 796 112 444 || +254 724 897595</a>
+                        <a href="#" class="boxed-btn3">+254 796 112 444</a>
                     </div>
                 </div>
                 <div class="col-xl-8 col-lg-8 col-md-7">
                     <div id="estimate-form" class="form">
-                        <form action="/process_form" method="POST" role="form">
+                    <form action="/process_form" method="POST" role="form">
                             <div class="Estimate_info">
                                 <h2 style="color: white;">Kindly let us know:</h2>
                             </div>
@@ -416,6 +391,13 @@ if (isset($_SESSION['error_message'])) {
                                         <input type="text" name="name" placeholder="Your name" required>
                                     </div>
                                 </div>
+
+                                <div class="col-xl-6">
+                                    <div class="input_field">
+                                        <input type="tel" name="phone" placeholder="Phone Number (e.g. +254700123456)" pattern="[+]{1}[0-9]{11,14}" required>
+                                    </div>
+                                </div>
+                                
                                 <div class="col-xl-6">
                                     <div class="input_field">
                                         <input type="email" name="email" placeholder="Email" required>
@@ -508,7 +490,7 @@ if (isset($_SESSION['error_message'])) {
                 <div class="col-xl-3 col-md-3">
                     <div class="single_location">
                         <h3> <img src="img/icon/support.svg" alt="Contact Us" loading="lazy"> Contact Us</h3>
-                        <p> +254 796 112 444 || +254 724 897595 <br>
+                        <p> +254 796 112 444 <br>
                             info@tahneemmovers.com</p>
                     </div>
                 </div>
@@ -592,7 +574,6 @@ if (isset($_SESSION['error_message'])) {
     </div>
 
     <!-- JS here -->
-
     <script src="js/vendor/modernizr-3.5.0.min.js"></script>
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/popper.min.js"></script>
@@ -621,7 +602,7 @@ if (isset($_SESSION['error_message'])) {
     <script src="js/mail-script.js"></script>
 
 
-    <script src="js/main.js"></script>
+    <script src="js/main.js"></script>    
 </body>
 
 </html>

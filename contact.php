@@ -1,31 +1,5 @@
 <?php
-session_start();
-
-require __DIR__ . '/vendor/autoload.php';
-
-// Load Environment Variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
-if (isset($_SESSION['error_message'])) {
-    echo "<script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var errorDiv = document.createElement('div');
-            errorDiv.style.color = 'red';
-            errorDiv.style.padding = '10px';
-            errorDiv.style.margin = '10px 0';
-            errorDiv.style.border = '1px solid red';
-            errorDiv.style.background = '#ffdddd';
-            errorDiv.textContent = '" . $_SESSION['error_message'] . "';
-            
-            var form = document.querySelector('#estimate-form');
-            if (form) {
-                form.insertAdjacentElement('beforebegin', errorDiv);
-            }
-        });
-    </script>";
-    unset($_SESSION['error_message']); // Clear message after displaying
-}
+require __DIR__ . '/config/bootstrap.php';
 ?>
 <!doctype html>
 <html class="no-js" lang="zxx">
@@ -56,6 +30,8 @@ if (isset($_SESSION['error_message'])) {
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css">
 
     <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <!-- header-start -->
@@ -76,12 +52,12 @@ if (isset($_SESSION['error_message'])) {
                                 <div class="short_contact_list">
                                     <ul>
                                         <li><a href="mailto:info@tahneemmovers.com"> <i class="fa fa-envelope"></i> info@tahneemmovers.com</a></li>
-                                        <li><a href="#"> <i class="fa fa-phone"></i>  +254 796 112 444 | +254 724 897595</a></li>
+                                        <li><a href="#"> <i class="fa fa-phone"></i>  +254 796 112 444 </a></li>
                                     </ul>
                                 </div>
 
                                 <div class="book_btn d-none d-lg-block">
-                                    <a class="boxed-btn3-line" href="#">Get Free Quote</a>
+                                    <a class="boxed-btn3-line" href="#estimate-form">Get Free Quotation</a>
                                 </div>
                             </div>
                         </div>
@@ -202,65 +178,90 @@ if (isset($_SESSION['error_message'])) {
                         <h2 class="contact-title">Get in Touch</h2>
                     </div>
                     <div class="col-lg-8">
-                        <form action="/process_form" class="form-contact contact_form" method="POST" id="estimate-form" novalidate="novalidate">
+                        <form action="/process_form" class="form-contact contact_form" method="POST" id="estimate-form" novalidate>
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <textarea class="form-control w-100" name="message" id="message" cols="30" rows="9"
-                                            onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Message'"
-                                            placeholder="Message" required></textarea>
+                                        <label for="message">Message</label>
+                                        <textarea class="form-control w-100" name="message" id="message" cols="30" rows="9" placeholder="Enter Message" required></textarea>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <input class="form-control valid" name="name" id="name" type="text"
-                                            onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter your name'"
-                                            placeholder="Enter your name" required>
+                                        <label for="name">Your Name</label>
+                                        <input class="form-control" name="name" id="name" type="text" placeholder="Enter your name" required>
                                     </div>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <input class="form-control valid" name="email" id="email" type="email"
-                                            onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'"
-                                            placeholder="Email" required>
+                                        <label for="phone">Phone Number</label>
+                                        <input class="form-control" name="phone" id="phone" type="tel" placeholder="+254700123456" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="email">Email Address</label>
+                                        <input class="form-control" name="email" id="email" type="email" placeholder="example@gmail.com" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="size_house_from">House Size</label>
+                                        <input class="form-control" name="size_house_from" id="size_house_from" type="text" placeholder="e.g. 3 Bedrooms" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="from_to_where">Moving From / To</label>
+                                        <input class="form-control" name="from_to_where" id="from_to_where" type="text" placeholder="e.g. Nairobi to Kiambu" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="floor_to_floor">Moving Floors</label>
+                                        <input class="form-control" name="floor_to_floor" id="floor_to_floor" type="text" placeholder="e.g. 3rd to 5th" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="moving_schedule">Moving Date</label>
+                                        <input class="form-control" name="moving_schedule" id="moving_schedule" type="text" placeholder="e.g. 1st March 2023" required>
                                     </div>
                                 </div>
                             </div>
-
+                            
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" name="size_house_from"
-                                            
-                                            placeholder="The size of the house you're moving from" required>
-                                    </div>
-                                </div><!-- onfocus="this.placeholder = ''" onblur="this.placeholder = 'The size of the house you\'re moving from'" -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" name="from_to_where"
-                                            placeholder="Where are you moving from, and where to?" required>
-                                    </div>
+
+                                <!-- Honeypot -->
+                                <div class="col-xl-12">
+                                    <input type="text" name="website" style="display:none;" tabindex="-1" autocomplete="off">
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" name="floor_to_floor"
-                                            placeholder="From which floor to which floor?" required>
-                                    </div>
+
+                                <!-- JavaScript-detect -->
+                                <div class="col-xl-12">
+                                    <input type="hidden" name="js_enabled" id="js_enabled" value="">
+                                    <script>document.getElementById("js_enabled").value = "yes";</script>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" name="moving_schedule"
-                                            placeholder="When do you want to move?" required>
-                                    </div>
+
+                                <!-- Time Token -->
+                                <div class="col-xl-12">
+                                    <input type="hidden" name="form_token" value="<?= time(); ?>">
                                 </div>
-                                <div class="col-12">
-                                    <div class="form-group mt-3">
-                                        <button type="submit" class="button button-contactForm boxed-btn">Request Estimate</button>
+
+                                <!-- reCAPTCHA -->
+                                <div class="col-xl-12">
+                                    <div class="g-recaptcha" data-sitekey="<?= $_ENV['RECAPTCHA_SITE'] ?>"></div>
+                                </div>
+
+                                <div class="col-xl-12">
+                                    <div class="input_field mt-3">
+                                        <button class="boxed-btn3-line" type="submit">Send Estimate</button>
                                     </div>
                                 </div>
                             </div>
                         </form>
                     </div>
+                    
                     <div class="col-lg-3 offset-lg-1">
                         <div class="media contact-info">
                             <span class="contact-info__icon"><i class="ti-home"></i></span>
@@ -272,7 +273,7 @@ if (isset($_SESSION['error_message'])) {
                         <div class="media contact-info">
                             <span class="contact-info__icon"><i class="ti-tablet"></i></span>
                             <div class="media-body">
-                                <h3> +254 796 112 444 | +254 724 897595</h3>
+                                <h3> +254 796 112 444 </h3>
                                 <p>Mon to Fri 9am to 6pm</p>
                             </div>
                         </div>
@@ -317,7 +318,7 @@ if (isset($_SESSION['error_message'])) {
             <div class="col-xl-3 col-md-3">
                 <div class="single_location">
                     <h3> <img src="img/icon/support.svg" alt="Contact Us" loading="lazy"> Contact Us</h3>
-                    <p> +254 796 112 444 || +254 724 897595 <br>
+                    <p> +254 796 112 444<br>
                         info@tahneemmovers.com</p>
                 </div>
             </div>

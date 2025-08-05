@@ -1,31 +1,5 @@
 <?php
-session_start();
-
-require __DIR__ . '/vendor/autoload.php';
-
-// Load Environment Variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
-if (isset($_SESSION['error_message'])) {
-    echo "<script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var errorDiv = document.createElement('div');
-            errorDiv.style.color = 'red';
-            errorDiv.style.padding = '10px';
-            errorDiv.style.margin = '10px 0';
-            errorDiv.style.border = '1px solid red';
-            errorDiv.style.background = '#ffdddd';
-            errorDiv.textContent = '" . $_SESSION['error_message'] . "';
-            
-            var form = document.querySelector('#estimate-form');
-            if (form) {
-                form.insertAdjacentElement('beforebegin', errorDiv);
-            }
-        });
-    </script>";
-    unset($_SESSION['error_message']); // Clear message after displaying
-}
+require __DIR__ . '/config/bootstrap.php';
 ?>
 <!doctype html>
 <html class="no-js" lang="zxx">
@@ -79,12 +53,12 @@ if (isset($_SESSION['error_message'])) {
                                 <div class="short_contact_list">
                                     <ul>
                                         <li><a href="mailto:info@tahneemmovers.com"> <i class="fa fa-envelope"></i> info@tahneemmovers.com</a></li>
-                                        <li><a href="#"> <i class="fa fa-phone"></i> +254 796 112 444 | +254 724 897595</a></li>
+                                        <li><a href="#"> <i class="fa fa-phone"></i> +254 796 112 444 </a></li>
                                     </ul>
                                 </div>
 
                                 <div class="book_btn d-none d-lg-block">
-                                    <a class="boxed-btn3-line" href="#">Get Free Quote</a>
+                                    <a class="boxed-btn3-line" href="#estimate-form">Get Free Quotation</a>
                                 </div>
                             </div>
                         </div>
@@ -504,7 +478,7 @@ if (isset($_SESSION['error_message'])) {
                         <h3>Feel Free To Request A Free Quote</h3>
                         <p>We will coordinate every aspect of your move and keep you posted each step of the way.
                         </p>
-                        <a href="#" class="boxed-btn3">+254 796 112 444 || +254 724 897595</a>
+                        <a href="#" class="boxed-btn3">+254 796 112 444 </a>
                     </div>
                 </div>
                 <div class="col-xl-8 col-lg-8 col-md-7">
@@ -611,7 +585,7 @@ if (isset($_SESSION['error_message'])) {
                 <div class="col-xl-3 col-md-3">
                     <div class="single_location">
                         <h3> <img src="img/icon/support.svg" alt="Contact Us" loading="lazy"> Contact Us</h3>
-                        <p> +254 796 112 444 || +254 724 897595 <br>
+                        <p> +254 796 112 444  <br>
                             info@tahneemmovers.com</p>
                     </div>
                 </div>

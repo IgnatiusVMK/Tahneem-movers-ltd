@@ -1,4 +1,17 @@
 <?php
+// First determine environment before loading anything else
+$environment = getenv('APP_ENV') ?: 'test';
+
+// Set error reporting based on environment
+if ($environment === 'test') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+} else {
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+    ini_set('display_errors', '0');
+    ini_set('log_errors', '1');
+}
+
 ob_start(); // Start output buffering
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -10,13 +23,38 @@ use PHPMailer\PHPMailer\Exception;
 
 require __DIR__ . '/vendor/autoload.php';
 
-// Error Reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Load Environment Variables with safety checks
+try {
+    $envFile = ".env.$environment";
+    
+    // Verify environment file exists
+    if (!file_exists(__DIR__ . '/' . $envFile)) {
+        throw new RuntimeException("Environment file $envFile not found");
+    }
 
-// Load Environment Variables
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+    $dotenv = Dotenv::createImmutable(__DIR__, $envFile);
+    $dotenv->load();
+    
+    // Validate required variables
+    $dotenv->required([
+        'DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS',
+        'RECAPTCHA_SITE', 'RECAPTCHA_SECRET'
+    ]);
+    
+    // Environment-specific validations
+    if ($environment === 'prod') {
+        $dotenv->required('SMTP_HOST')->notEmpty();
+    }
+    
+} catch (Exception $e) {
+    // Handle errors appropriately per environment
+    if ($environment === 'test') {
+        die("Environment Error: " . $e->getMessage());
+    } else {
+        error_log("Environment Error: " . $e->getMessage());
+        die("System configuration error. Please contact support.");
+    }
+}
 
 // Database Connection
 try {
@@ -58,7 +96,7 @@ $response_data = json_decode($verify_response);
 
 if (!$response_data->success) {
     $_SESSION['error_message'] = "reCAPTCHA verification failed. Please try again.";
-    header("Location: index.php#estimate-form", true, 302);
+    header("Location: " . getRefererPage(), true, 302);
     exit;
 }
 
@@ -80,7 +118,7 @@ $block = $stmt->fetch();
 
 if ($block && strtotime($block['blocked_until']) > time()) {
     $_SESSION['error_message'] = "Too many requests. You are blocked until " . htmlspecialchars($block['blocked_until']);
-    header("Location: index.php#estimate-form", true, 302);
+    header("Location: " . getRefererPage(), true, 302);
     exit;
 }
 
@@ -103,18 +141,26 @@ if ($email_count > 2) {
     $stmt->execute([$user_ip, $blocked_until]);
 
     $_SESSION['error_message'] = "Too many requests. You are blocked until " . htmlspecialchars($blocked_until);
-    header("Location: index.php#estimate-form", true, 302);
+    header("Location: " . getRefererPage(), true, 302);
     exit;
 }
 
 // Validate Inputs
 $name = htmlspecialchars(trim(filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS)));
 $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+$phone = htmlspecialchars(trim($_POST['phone'] ?? ''));
 $size_house_from = htmlspecialchars(trim($_POST['size_house_from'] ?? ''));
 $from_to_where = htmlspecialchars(trim($_POST['from_to_where'] ?? ''));
 $floor_to_floor = htmlspecialchars(trim($_POST['floor_to_floor'] ?? ''));
 $moving_schedule = htmlspecialchars(trim($_POST['moving_schedule'] ?? ''));
 $message = htmlspecialchars(trim($_POST['message'] ?? ''));
+
+// Phone number validation for Kenyan format (+254XXXXXXXXX)
+if (!preg_match('/^\+254[0-9]{9}$/', $phone)) {
+    $_SESSION['error_message'] = "Please enter a valid Kenyan phone number starting with +254 followed by 9 digits";
+    header("Location: " . getRefererPage(), true, 302);
+    exit;
+}
 
 if (!$email) {
     die("Invalid email format.");
@@ -123,7 +169,27 @@ if (!$email) {
 // Send Email with PHPMailer
 $mail = new PHPMailer(true);
 
+$mail->SMTPDebug = 2; // Enable verbose debug output
+$mail->Debugoutput = function($str, $level) {
+    error_log("PHPMailer: $str");
+};
+
 try {
+
+    $mail = new PHPMailer(true);
+    
+    // Debugging setup
+    $mail->SMTPDebug = 2;
+    $mail->Debugoutput = function($str, $level) {
+        error_log("PHPMailer: $str");
+    };
+
+    // Log SMTP settings
+    error_log("Attempting to send email with settings:");
+    error_log("Host: ".$_ENV['SMTP_HOST']);
+    error_log("User: ".$_ENV['SMTP_USER']);
+    error_log("Port: ".$_ENV['SMTP_PORT']);
+
     $mail->isSMTP();
     $mail->Host = $_ENV['SMTP_HOST'];
     $mail->SMTPAuth = true;
@@ -134,6 +200,11 @@ try {
 
     $mail->setFrom($_ENV['SMTP_USER'], 'Quotation Inquiry');
     $mail->addAddress('ignatiusvmk@gmail.com');
+    /* $mail->addAddress('info.tahneemlogisticsltd@gmail.com'); */
+
+    $mail->addCC('ivmkariuki@gmail.com');
+    // $mail->addCC('sales@tahneemmovers.com');
+
     $mail->isHTML(true);
     $mail->Subject = 'Services Estimate Request';
 
@@ -151,6 +222,7 @@ try {
             <table>
                 <tr><td><strong>Name:</strong></td><td>$name</td></tr>
                 <tr><td><strong>Email:</strong></td><td>$email</td></tr>
+                <tr><td><strong>Phone:</strong></td><td>$phone</td></tr>
                 <tr><td><strong>IP Address:</strong></td><td>$user_ip</td></tr>
                 <tr><td><strong>Size of House:</strong></td><td>$size_house_from</td></tr>
                 <tr><td><strong>Moving From → To:</strong></td><td>$from_to_where</td></tr>
@@ -163,15 +235,35 @@ try {
     </body></html>";
 
     if ($mail->send()) {
-        header("Location: index.php#estimate-form", true, 302);
+        error_log("Email successfully sent");
+        header("Location: " . getRefererPage(), true, 302);
         exit;
     } else {
         throw new Exception("Email sending failed.");
     }
 } catch (Exception $e) {
-    error_log("Email error: " . $mail->ErrorInfo);
-    die("Message could not be sent. Please try again later.");
+    error_log("Email error: " . $e->getMessage());
+    error_log("PHPMailer ErrorInfo: " . $mail->ErrorInfo);
+    die("Message could not be sent. Please try again later. Error logged.");
 }
 
 ob_end_flush(); // Send output buffer
+
+// Function to get the referring page with fragment
+function getRefererPage() {
+    $referer = $_SERVER['HTTP_REFERER'] ?? 'index.php';
+    $url_parts = parse_url($referer);
+    $path = $url_parts['path'] ?? 'index.php';
+    $fragment = isset($_POST['form_anchor']) ? '#' . $_POST['form_anchor'] : '#estimate-form';
+    
+    // Ensure we don't redirect to external sites
+    $allowed_domains = [$_SERVER['HTTP_HOST'], 'www.tahneemmovers.com']; // Add your domains
+    $referer_domain = parse_url($referer, PHP_URL_HOST);
+    
+    if (!in_array($referer_domain, $allowed_domains)) {
+        return 'index.php' . $fragment;
+    }
+    
+    return $path . $fragment;
+}
 ?>
